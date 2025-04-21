@@ -276,3 +276,18 @@ def get_skeleton(tree: SimplexTree, dim: int):
 
     collect_to_dim(tree.root, [], -1)
     return simplices
+
+
+def get_neighborhood(st: SimplexTree, simplex):
+    simplex_set = set(simplex)
+    adjacent_vertices = set(simplex)
+
+    all_simplices = st.get_simplices()
+
+    for s in all_simplices:
+        s_set = set(s)
+
+        if simplex_set.intersection(s_set) and s_set.difference(simplex_set):
+            adjacent_vertices.update(s_set.difference(simplex_set))
+
+    return sorted(list(adjacent_vertices))
