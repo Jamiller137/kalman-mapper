@@ -17,9 +17,9 @@ def generate_circle(num_points: int, noise_level: float):
     return data
 
 
-pca = PCA(n_components=1)
+# pca = PCA(n_components=1)
 data = generate_circle(10000, 0.05)
-proj = data[:, 0]
+# proj = data[:, 0]
 proj = data
 clusterer = sk_learn(DBSCAN(eps=0.25, min_samples=1))
 
