@@ -1,15 +1,16 @@
 import numpy as np
 from zen_mapper import mapper
 from sklearn.decomposition import PCA
+
+# from sklearn.decomposition import PCA
 from sklearn.cluster import DBSCAN
 from zen_mapper.cluster import sk_learn
 from zen_mapper.cover import Width_Balanced_Cover
-from similarity import get_central_points, get_nodes_containing_idx
-from similarity import get_simplex_neighborhood
+from similarity import centroid_similarity
 
 
 def generate_circle(num_points: int, noise_level: float):
-    angles = 2*np.pi*np.random.random(num_points)
+    angles = 2 * np.pi * np.random.random(num_points)
     x = np.cos(angles) + noise_level * np.random.normal(0, 1, num_points)
     y = np.sin(angles) + noise_level * np.random.normal(0, 1, num_points)
 
@@ -17,31 +18,28 @@ def generate_circle(num_points: int, noise_level: float):
     return data
 
 
-# pca = PCA(n_components=1)
+pca = PCA(n_components=1)
 data = generate_circle(10000, 0.05)
-# proj = data[:, 0]
-proj = data
+proj1 = data[:, 0]
+proj2 = pca.fit_transform(data)
 clusterer = sk_learn(DBSCAN(eps=0.25, min_samples=1))
 
-result = mapper(
-        data=data,
-        clusterer=clusterer,
-        cover_scheme=Width_Balanced_Cover(n_elements=5, percent_overlap=0.25),
-        projection=proj,
-        dim=2
-        )
+result1 = mapper(
+    data=data,
+    clusterer=clusterer,
+    cover_scheme=Width_Balanced_Cover(n_elements=15, percent_overlap=0.25),
+    projection=proj1,
+    dim=2,
+)
 
-st = result.nerve
-cluster_list = result.nodes
+result2 = mapper(
+    data=data,
+    projection=proj1,
+    clusterer=clusterer,
+    cover_scheme=Width_Balanced_Cover(n_elements=15, percent_overlap=0.33),
+    dim=2,
+)
 
+sim_index = centroid_similarity(result1, result2, data)
 
-central_points = get_central_points(nodes=cluster_list, data=data)
-
-central_point_nodes = get_nodes_containing_idx(
-        nodes=cluster_list,
-        datapoint_index=central_points[24])
-
-print(st)
-print(central_point_nodes)
-print(f"{central_points[24]} = {data[central_points[24]]}")
-print(get_simplex_neighborhood(st, central_point_nodes))
+print(sim_index)
