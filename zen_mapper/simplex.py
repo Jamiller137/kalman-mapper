@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import List, Set
 
 
 class SimplexNode:
@@ -291,3 +292,17 @@ def get_neighborhood(st: SimplexTree, simplex):
             adjacent_vertices.update(s_set.difference(simplex_set))
 
     return sorted(list(adjacent_vertices))
+
+
+def get_nodes_containing_idx(nodes, datapoint_index) -> List[int]:
+    return [
+        i for i, node_indices in enumerate(nodes) if datapoint_index in node_indices
+    ]
+
+
+def get_neighborhood_data_indices(mapper_result, node_indices) -> Set[int]:
+    neighborhood = get_neighborhood(st=mapper_result.nerve, simplex=node_indices)
+    data_indices = set()
+    for node_idx in neighborhood:
+        data_indices.update(mapper_result.nodes[node_idx])
+    return data_indices
