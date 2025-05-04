@@ -26,15 +26,23 @@ def mapper(
     clusterer: Clusterer,
     dim: int | None,
     min_intersection: int = 1,
+    precomputed_cover: list[list[int]] = None,
 ) -> MapperResult:
-    assert len(data) == len(projection), (
-        "the entries in projection have to correspond to entries in data"
-    )
+
+    assert len(data) == len(
+        projection
+    ), "the entries in projection have to correspond to entries in data"
 
     nodes = list()
     cover_id = list()
 
-    for i, element in enumerate(cover_scheme(projection)):
+    if precomputed_cover is not None:
+        cover_elements = precomputed_cover
+        print("Using precomputed cover")
+    else:
+        cover_elements = cover_scheme(projection)
+
+    for i, element in enumerate(cover_elements):
         logger.info("Clustering cover element %d", i)
         clusters = clusterer(data[element])
         new_nodes = [element[cluster] for cluster in clusters]
